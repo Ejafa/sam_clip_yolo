@@ -24,10 +24,15 @@ print(PWD)
 
 app = FastAPI()
 
+origins = [
+    "http://localhost",
+    "http://localhost:8000",
+]
+
 app.add_middleware(
     CORSMiddleware, 
     allow_credentials=True, 
-    allow_origins=["*"], 
+    allow_origins=origins, 
     allow_methods=["*"], 
     allow_headers=["*"]
 )
@@ -64,7 +69,7 @@ def segment(predicted_iou_threshold: float,
   image.save(buffer, format="PNG")
   imgstr = base64.b64encode(buffer.getvalue())
 
-  return Response(content=imgstr, media_type="image/png")
+  return Response(content=imgstr, media_type="application/json")
 
 
 @app.post("/yolo5_img")
@@ -91,4 +96,5 @@ async def yolo5_vid(file: UploadFile = File(...)):
     path = PWD+"/saved/saved_vid.mp4"
     run(source = path)
 
-    return FileResponse(PWD+"/runs/detect/exp2/vid_result.mp4")
+
+    return FileResponse(PWD+"/runs/detect/exp2/vid_result.mp4",media_type="video/mp4")
