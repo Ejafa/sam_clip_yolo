@@ -12,6 +12,8 @@ import cv2
 import PIL
 from PIL import Image
 from io import BytesIO
+from fastapi import Header
+from pathlib import Path
 # import sys
 from segmentAnything.segment import *
 
@@ -22,17 +24,18 @@ PWD=os.getcwd()
 
 print(PWD)
 
-app = FastAPI()
+app = FastAPI(
+    title="guamara project",
+    version=0.1,
+    root_path="/api/"
+)
 
-origins = [
-    "http://localhost",
-    "http://localhost:8000",
-]
+
 
 app.add_middleware(
     CORSMiddleware, 
     allow_credentials=True, 
-    allow_origins=origins, 
+    allow_origins=["*"], 
     allow_methods=["*"], 
     allow_headers=["*"]
 )
@@ -96,5 +99,28 @@ async def yolo5_vid(file: UploadFile = File(...)):
     path = PWD+"/saved/saved_vid.mp4"
     run(source = path)
 
+    return {"complete": True}
+    #return FileResponse(path=PWD+"/runs/detect/exp2/vid_result.mp4",filename="vid_result.mp4",media_type="video/mp4")
+    #return FileResponse(PWD+"/runs/detect/exp2/vid_result.mp4",media_type="video/mp4")
 
-    return FileResponse(PWD+"/runs/detect/exp2/vid_result.mp4",media_type="video/mp4")
+# @app.get("/test") 
+# async def vis():
+#     file_path = os.path.join(PWD+"/runs/detect/exp2/", "vid_result.mp4")
+#     return FileResponse(file_path, media_type="video/mp4")
+
+# @app.get("/test2")
+# async def video_endpoint(range: str = Header(None)):
+#     CHUNK_SIZE = 1024*1024
+#     video_path = os.path.join(PWD+"/runs/detect/exp2/", "vid_result.mp4")
+#     # start, end = range.replace("bytes=", "").split("-")
+#     # start = int(start)
+#     # end = int(end) if end else start + CHUNK_SIZE
+#     # with open(video_path, "rb") as video:
+#     #     video.seek(start)
+#     #     data = video.read(end - start)
+#     #     filesize = str(video_path.stat().st_size)
+#     headers = {
+#         # 'Content-Range': f'bytes {str(start)}-{str(end)}/{filesize}',
+#         # 'Accept-Ranges': 'bytes'
+#     }
+#     return Response(video_path, status_code=206, headers=headers, media_type="video/mp4")
